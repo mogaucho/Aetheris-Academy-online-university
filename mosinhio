@@ -1,0 +1,108 @@
+aetheris-academy/
+├── frontend/                   # React.js + Tailwind CSS
+│   ├── src/
+│   │   ├── components/         # EntryExam, CourseCard, etc.
+│   │   ├── pages/              # Landing, Dashboard, Certifications
+│   │   ├── services/           # Firebase auth, Stripe integration
+│   │   └── App.tsx
+│   ├── public/
+│   ├── package.json
+│   └── tailwind.config.js
+├── backend/                    # Node.js/Express
+│   ├── src/
+│   │   ├── routes/            # API routes (auth, payments, exams)
+│   │   ├── models/            # User, Course schemas
+│   │   └── server.ts
+│   ├── package.json
+│   └── .env.example
+├── .github/
+│   ├── workflows/              # CI/CD pipelines
+│   ├── ISSUE_TEMPLATE/         # Bug/feature templates
+│   └── PULL_REQUEST_TEMPLATE.md
+├── README.md
+└── .gitignore
+    REACT_APP_FIREBASE_API_KEY=your_key
+REACT_APP_STRIPE_PUBLIC_KEY=pk_test_123
+REACT_APP_BACKEND_URL=https://aetheris-backend.herokuapp.com
+    STRIPE_SECRET_KEY=sk_test_123
+FIREBASE_SERVICE_ACCOUNT=./serviceAccountKey.json
+PORT=5000
+    name: Deploy Frontend
+on:
+  push:
+    branches: [main]
+    paths: 
+      - 'frontend/**'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 18.x
+      - run: npm install
+        working-directory: ./frontend
+      - run: npm run build
+        working-directory: ./frontend
+      - uses: netlify/actions/cli@master
+        env:
+          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+        with:
+          args: deploy --dir=frontend/build
+    name: Deploy Backend
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'backend/**'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: akhileshns/heroku-deploy@v3.12.12
+        with:
+          heroku_api_key: ${{ secrets.HEROKU_API_KEY }}
+          heroku_app_name: "aetheris-backend"
+          heroku_email: "admin@aetheris.academy"
+    ---
+name: Bug Report
+about: Report technical issues
+title: "[BUG] "
+labels: bug
+---
+
+**Describe the Bug**
+<!-- What's broken? -->
+
+**Steps to Reproduce**
+1. Go to '...'
+2. Click on '....'
+
+**Expected vs Actual Behavior**
+    ## Description
+<!-- What does this PR accomplish? -->
+
+## Changes
+- [ ] Added new feature
+- [ ] Fixed bug
+
+## Testing
+<!-- How did you verify these changes? -->
+    # Clone the repository
+git clone https://github.com/YOUR_USERNAME/aetheris-academy.git
+cd aetheris-academy
+
+# Install frontend dependencies
+cd frontend && npm install
+
+# Install backend dependencies
+cd ../backend && npm install
+
+# Start both servers (development)
+cd frontend && npm start
+cd ../backend && npm run dev
